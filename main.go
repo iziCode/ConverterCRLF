@@ -3,12 +3,16 @@ package main
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"strings"
 )
 
 func main() {
+	fmt.Println(len(GetAllFilesFromCurrentDir()))
+
+	return
 
 	StartReplaceFormatNEL()
 
@@ -17,11 +21,11 @@ func main() {
 }
 
 func StartReplaceFormatNEL() {
-
-	var currentFormat, finalFormat, filePath string
+	var err error
+	var currentFormat, finalFormat, currentPath string
 
 	fmt.Println("Введите какой формат файлов (CRLF, CR, LF или ALL) вы хотите преобразовать:")
-	_, err := fmt.Scan(&currentFormat)
+	_, err = fmt.Scan(&currentFormat)
 	CheckErrors("func StartReplaceFormatNEL()", err)
 
 	fmt.Println("Введите какой формат файлов вы хотите получить на выходе CRLF, CR, или LF:")
@@ -32,7 +36,7 @@ func StartReplaceFormatNEL() {
 
 	switch currentFormat {
 	case "CRLF":
-		ReadFromFile(filePath)
+		ReadFromFile(currentPath)
 
 	case "CR":
 		fmt.Println("bb")
@@ -114,6 +118,28 @@ func CheckFormatNEAL(this, that string, b []byte) {
 		fmt.Println("Введите один из трех форматов CR, LF, CRLF")
 	}
 
+}
+
+func GetAllFilesFromCurrentDir() (allFilesFromCurrentDir []string) {
+	currentPath, err := os.Getwd()
+	CheckErrors("func StartReplaceFormatNEL()", err)
+
+	return GetAllFilesFromPath(currentPath)
+}
+
+func GetAllFilesFromPath(filePath string) (allFilesFromPath []string) {
+	files, err := ioutil.ReadDir(filePath)
+	CheckErrors("func GetAllFiles(filePath string)", err)
+
+	for _, file := range files {
+		dirOrFilePath := strings.Join([]string{filePath, file.Name()}, "\\")
+		if file.IsDir() {
+			allFilesFromPath = append(allFilesFromPath, GetAllFilesFromPath(dirOrFilePath)...)
+		} else {
+			allFilesFromPath = append(allFilesFromPath, dirOrFilePath)
+		}
+	}
+	return
 }
 
 //Общая проверка всех ошибок
