@@ -9,20 +9,20 @@ import (
 	"strings"
 )
 
+const CRLF = "CRLF"
+const CR = "CR"
+const LF = "LF"
+const ALL = "ALL"
+
 func main() {
-	fmt.Println(len(GetAllFilesFromCurrentDir()))
-
-	return
-
 	StartReplaceFormatNEL()
-
-	//ReadFromFile("test_in.log")
 
 }
 
 func StartReplaceFormatNEL() {
 	var err error
-	var currentFormat, finalFormat, currentPath string
+	var currentFormat, finalFormat string
+	filePaths := GetAllFilesFromCurrentDir()
 
 	fmt.Println("Введите какой формат файлов (CRLF, CR, LF или ALL) вы хотите преобразовать:")
 	_, err = fmt.Scan(&currentFormat)
@@ -35,15 +35,15 @@ func StartReplaceFormatNEL() {
 	currentFormat = strings.ToUpper(currentFormat)
 
 	switch currentFormat {
-	case "CRLF":
-		ReadFromFile(currentPath)
+	case CRLF:
+		ReadFromFilePathsSlice(currentFormat, finalFormat, filePaths)
 
-	case "CR":
+	case CR:
 		fmt.Println("bb")
 
-	case "LF":
+	case LF:
 		fmt.Println("bb")
-	case "ALL":
+	case ALL:
 		fmt.Println("bb")
 
 	default:
@@ -66,37 +66,42 @@ func WriteInFile(b []byte) {
 	fmt.Println("Done.")
 }
 
-func ReadFromFile(filePath string) {
-	file, err := os.Open(filePath)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	defer file.Close()
-
-	data := make([]byte, 64000)
-
-	for {
-		n, err := file.Read(data)
-
-		if err == io.EOF { // если конец файла
-			break // выходим из цикла
+func ReadFromFilePathsSlice(currentFormat, finalFormat string, filePaths []string) {
+	for _, filePath := range filePaths {
+		file, err := os.Open(filePath)
+		if err != nil {
+			fmt.Println("func ReadFromFilePathsSlice(filePaths []string)", err)
+			os.Exit(1)
 		}
-		fmt.Println(data[:n])
-		CheckFormatNEAL("CRLF", "LF", data[:n])
 
+		CheckErrors("func ReadFromFilePathsSlice(filePaths []string)", err)
+
+		data := make([]byte, 100000)
+
+		for {
+			n, err := file.Read(data)
+
+			if err == io.EOF { // если конец файла
+				break // выходим из цикла
+			}
+			fmt.Println(data[:n])
+			ChangeFormatNEAL(currentFormat, finalFormat, data[:n])
+
+		}
+		err = file.Close()
+		CheckErrors("func ReadFromFilePathsSlice(filePaths []string)", err)
 	}
+
 }
-func CheckFormatNEAL(this, that string, b []byte) {
+func ChangeFormatNEAL(currentFormat, finalFormat string, b []byte) {
+	currentFormat = strings.ToUpper(currentFormat)
+	finalFormat = strings.ToUpper(finalFormat)
 
-	this = strings.ToUpper(this)
-	that = strings.ToUpper(that)
-
-	switch this {
-	case "CRLF":
+	switch currentFormat {
+	case CRLF:
 		for i := 0; i < len(b); i++ {
 			if b[i] == 13 && b[i+1] == 10 {
-				if that == "LF" {
+				if finalFormat == LF {
 					b = append(b[:i], b[i+1:]...)
 					i--
 				} else {
@@ -108,10 +113,10 @@ func CheckFormatNEAL(this, that string, b []byte) {
 		WriteInFile(b)
 		fmt.Println(b)
 
-	case "CR":
+	case CR:
 		fmt.Println("bb")
 
-	case "LF":
+	case LF:
 		fmt.Println("bb")
 
 	default:
