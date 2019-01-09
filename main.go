@@ -3,20 +3,34 @@ package main
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"strings"
 )
 
 func main() {
-	ReadFromFile("test_in.log")
+
+	StartReplaceFormatNEL()
+
+	//ReadFromFile("test_in.log")
 
 }
 
-func ReplaceFormatNEL(this, that, filePath string) {
+func StartReplaceFormatNEL() {
 
-	this = strings.ToUpper(this)
+	var currentFormat, finalFormat, filePath string
 
-	switch this {
+	fmt.Println("Введите какой формат файлов (CRLF, CR, LF или ALL) вы хотите преобразовать:")
+	_, err := fmt.Scan(&currentFormat)
+	CheckErrors("func StartReplaceFormatNEL()", err)
+
+	fmt.Println("Введите какой формат файлов вы хотите получить на выходе CRLF, CR, или LF:")
+	_, err = fmt.Scan(&finalFormat)
+	CheckErrors("func StartReplaceFormatNEL()", err)
+
+	currentFormat = strings.ToUpper(currentFormat)
+
+	switch currentFormat {
 	case "CRLF":
 		ReadFromFile(filePath)
 
@@ -25,9 +39,12 @@ func ReplaceFormatNEL(this, that, filePath string) {
 
 	case "LF":
 		fmt.Println("bb")
+	case "ALL":
+		fmt.Println("bb")
 
 	default:
-		fmt.Println("Введите один из трех форматов CR, LF, CRLF")
+		fmt.Println("Введите корректные данные!!!")
+		StartReplaceFormatNEL()
 	}
 
 }
@@ -62,21 +79,21 @@ func ReadFromFile(filePath string) {
 			break // выходим из цикла
 		}
 		fmt.Println(data[:n])
-		CheckFortmatNEL("CRLF", "LF", data[:n])
+		CheckFormatNEAL("CRLF", "LF", data[:n])
 
 	}
 }
-func CheckFortmatNEL(this, that string, b []byte) {
+func CheckFormatNEAL(this, that string, b []byte) {
 
 	this = strings.ToUpper(this)
 	that = strings.ToUpper(that)
 
 	switch this {
 	case "CRLF":
-		for i := 0; i< len(b); i++ {
+		for i := 0; i < len(b); i++ {
 			if b[i] == 13 && b[i+1] == 10 {
 				if that == "LF" {
-					b = append(b[:i] , b[i+1:]...)
+					b = append(b[:i], b[i+1:]...)
 					i--
 				} else {
 
@@ -97,4 +114,11 @@ func CheckFortmatNEL(this, that string, b []byte) {
 		fmt.Println("Введите один из трех форматов CR, LF, CRLF")
 	}
 
+}
+
+//Общая проверка всех ошибок
+func CheckErrors(methodName string, err error) {
+	if err != nil {
+		log.Println(methodName, "get errors:", err)
+	}
 }
