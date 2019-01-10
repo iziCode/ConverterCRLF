@@ -31,6 +31,7 @@ func StartReplaceFormatNEL() {
 	CheckErrors("func StartReplaceFormatNEL()", err)
 
 	currentFormat = strings.ToUpper(currentFormat)
+	finalFormat = strings.ToUpper(finalFormat)
 
 	if currentFormat != CRLF && currentFormat != CR && currentFormat != LF && currentFormat != ALL {
 		fmt.Println("Неправильный входной формат!!! Выберите CRLF, CR, LF или ALL")
