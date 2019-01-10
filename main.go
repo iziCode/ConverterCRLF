@@ -34,16 +34,9 @@ func StartReplaceFormatNEL() {
 	currentFormat = strings.ToUpper(currentFormat)
 
 	switch currentFormat {
-	case CRLF:
+	case CRLF, CR, LF, ALL:
+		//TODO: Add check. Format must be different
 		ReadFromFilePathsSlice(currentFormat, finalFormat, filePaths)
-
-	case CR:
-		fmt.Println("bb")
-
-	case LF:
-		fmt.Println("bb")
-	case ALL:
-		fmt.Println("bb")
 
 	default:
 		fmt.Println("Введите корректные данные!!!")
@@ -88,17 +81,17 @@ func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte) {
 	finalFormat = strings.ToUpper(finalFormat)
 	switch currentFormat {
 	case CRLF:
-		for i := 0; i < len(b); i++ {
+		for i := 0; i < len(b)-1; i++ {
 			if b[i] == 13 && b[i+1] == 10 {
 				if finalFormat == LF {
 					b = append(b[:i], b[i+1:]...)
 					i--
 				} else {
-
+					b = append(b[:i+1], b[i+2:]...)
 				}
 			}
-
 		}
+		//TODO: Add check if byte not touch then writing will pass
 		WriteInFile(filePath, b)
 
 	case CR:
@@ -116,6 +109,7 @@ func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte) {
 func GetAllFilesFromCurrentDir() (allFilesFromCurrentDir []string) {
 	currentPath, err := os.Getwd()
 	CheckErrors("func StartReplaceFormatNEL()", err)
+	//currentPath := `D:\VM\image-docker\ci-testing — копия`
 
 	return GetAllFilesFromPath(currentPath)
 }
