@@ -80,12 +80,15 @@ func ReadFromFilePathsSlice(currentFormat, finalFormat string, filePaths []strin
 
 }
 func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte) {
+	fileByteChanged := false
+
 	currentFormat = strings.ToUpper(currentFormat)
 	finalFormat = strings.ToUpper(finalFormat)
 	switch currentFormat {
 	case CRLF:
 		for i := 0; i < len(b)-1; i++ {
 			if b[i] == 13 && b[i+1] == 10 {
+				fileByteChanged = true
 				if finalFormat == LF {
 					b = append(b[:i], b[i+1:]...)
 					i--
@@ -94,8 +97,9 @@ func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte) {
 				}
 			}
 		}
-		//TODO: Add check if byte not touch then writing will pass
-		WriteInFile(filePath, b)
+		if fileByteChanged {
+			WriteInFile(filePath, b)
+		}
 
 	case CR:
 		fmt.Println("bb")
