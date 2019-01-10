@@ -21,7 +21,6 @@ func main() {
 func StartReplaceFormatNEL() {
 	var err error
 	var currentFormat, finalFormat string
-	filePaths := GetAllFilesFromCurrentDir()
 
 	fmt.Println("Введите какой формат файлов (CRLF, CR, LF или ALL) вы хотите преобразовать:")
 	_, err = fmt.Scan(&currentFormat)
@@ -33,14 +32,18 @@ func StartReplaceFormatNEL() {
 
 	currentFormat = strings.ToUpper(currentFormat)
 
-	switch currentFormat {
-	case CRLF, CR, LF, ALL:
-		//TODO: Add check. Format must be different
-		ReadFromFilePathsSlice(currentFormat, finalFormat, filePaths)
-
-	default:
-		fmt.Println("Введите корректные данные!!!")
+	if currentFormat != CRLF && currentFormat != CR && currentFormat != LF && currentFormat != ALL {
+		fmt.Println("Неправильный входной формат!!! Выберите CRLF, CR, LF или ALL")
 		StartReplaceFormatNEL()
+	} else if finalFormat != CRLF && finalFormat != CR && finalFormat != LF {
+		fmt.Println("Неправильный выходной формат!!! Выберите CRLF, CR, или LF")
+		StartReplaceFormatNEL()
+	} else if currentFormat == finalFormat {
+		fmt.Println("Форматы должны отличаться!!!")
+		StartReplaceFormatNEL()
+	} else {
+		filePaths := GetAllFilesFromCurrentDir()
+		ReadFromFilePathsSlice(currentFormat, finalFormat, filePaths)
 	}
 
 }
