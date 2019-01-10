@@ -16,7 +16,6 @@ const ALL = "ALL"
 
 func main() {
 	StartReplaceFormatNEL()
-
 }
 
 func StartReplaceFormatNEL() {
@@ -53,17 +52,10 @@ func StartReplaceFormatNEL() {
 
 }
 
-func WriteInFile(b []byte) {
-	//data := []byte("Hello Bold!")
-	file, err := os.Create("test_out.log")
-	if err != nil {
-		fmt.Println("Unable to create file:", err)
-		os.Exit(1)
-	}
-	defer file.Close()
-	file.Write(b)
+func WriteInFile(filePath string, b []byte) {
 
-	fmt.Println("Done.")
+	err := ioutil.WriteFile(filePath, b, 0644)
+	CheckErrors("func WriteInFile(b []byte)", err)
 }
 
 func ReadFromFilePathsSlice(currentFormat, finalFormat string, filePaths []string) {
@@ -73,7 +65,6 @@ func ReadFromFilePathsSlice(currentFormat, finalFormat string, filePaths []strin
 			fmt.Println("func ReadFromFilePathsSlice(filePaths []string)", err)
 			os.Exit(1)
 		}
-
 		CheckErrors("func ReadFromFilePathsSlice(filePaths []string)", err)
 
 		data := make([]byte, 100000)
@@ -84,8 +75,7 @@ func ReadFromFilePathsSlice(currentFormat, finalFormat string, filePaths []strin
 			if err == io.EOF { // если конец файла
 				break // выходим из цикла
 			}
-			fmt.Println(data[:n])
-			ChangeFormatNEAL(currentFormat, finalFormat, data[:n])
+			ChangeFormatNEAL(filePath, currentFormat, finalFormat, data[:n])
 
 		}
 		err = file.Close()
@@ -93,10 +83,9 @@ func ReadFromFilePathsSlice(currentFormat, finalFormat string, filePaths []strin
 	}
 
 }
-func ChangeFormatNEAL(currentFormat, finalFormat string, b []byte) {
+func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte) {
 	currentFormat = strings.ToUpper(currentFormat)
 	finalFormat = strings.ToUpper(finalFormat)
-
 	switch currentFormat {
 	case CRLF:
 		for i := 0; i < len(b); i++ {
@@ -110,8 +99,7 @@ func ChangeFormatNEAL(currentFormat, finalFormat string, b []byte) {
 			}
 
 		}
-		WriteInFile(b)
-		fmt.Println(b)
+		WriteInFile(filePath, b)
 
 	case CR:
 		fmt.Println("bb")
