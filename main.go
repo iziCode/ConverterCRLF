@@ -83,8 +83,6 @@ func ReadFromFilePathsSlice(currentFormat, finalFormat string, filePaths []strin
 func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte) {
 	fileByteChanged := false
 
-	currentFormat = strings.ToUpper(currentFormat)
-	finalFormat = strings.ToUpper(finalFormat)
 	switch currentFormat {
 	case CRLF:
 		for i := 0; i < len(b)-1; i++ {
