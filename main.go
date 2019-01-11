@@ -69,8 +69,8 @@ func ReadFromFilePathsSlice(currentFormat, finalFormat string, filePaths []strin
 		for {
 			n, err := file.Read(data)
 
-			if err == io.EOF { // если конец файла
-				break // выходим из цикла
+			if err == io.EOF {
+				break
 			}
 			ChangeFormatNEAL(filePath, currentFormat, finalFormat, data[:n])
 
@@ -141,7 +141,6 @@ func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte) {
 		}
 
 	case ALL:
-		//func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte)
 		if finalFormat == CRLF {
 			ChangeFormatNEAL(filePath, CR, CRLF, b)
 			ChangeFormatNEAL(filePath, LF, CRLF, b)
@@ -166,9 +165,8 @@ func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte) {
 }
 
 func GetAllFilesFromCurrentDir() (allFilesFromCurrentDir []string) {
-	//currentPath, err := os.Getwd()
-	//CheckErrors("func StartReplaceFormatNEL()", err)
-	currentPath := `D:\VM\image-docker\ci-testing — копия`
+	currentPath, err := os.Getwd()
+	CheckErrors("func StartReplaceFormatNEL()", err)
 
 	return GetAllFilesFromPath(currentPath)
 }
