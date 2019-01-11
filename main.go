@@ -140,6 +140,25 @@ func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte) {
 			WriteInFile(filePath, b)
 		}
 
+	case ALL:
+		//func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte)
+		if finalFormat == CRLF {
+			ChangeFormatNEAL(filePath, CR, CRLF, b)
+			ChangeFormatNEAL(filePath, LF, CRLF, b)
+			fileByteChanged = true
+		} else if finalFormat == CR {
+			ChangeFormatNEAL(filePath, CRLF, CR, b)
+			ChangeFormatNEAL(filePath, LF, CR, b)
+			fileByteChanged = true
+		} else if finalFormat == LF {
+			ChangeFormatNEAL(filePath, CRLF, LF, b)
+			ChangeFormatNEAL(filePath, CR, LF, b)
+			fileByteChanged = true
+		}
+		if fileByteChanged {
+			WriteInFile(filePath, b)
+		}
+
 	default:
 		fmt.Println("Введите один из трех форматов CR, LF, CRLF")
 	}
