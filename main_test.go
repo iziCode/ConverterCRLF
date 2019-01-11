@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestForGetAllFilesFromPath(t *testing.T) {
+func TestGetAllFilesFromPath(t *testing.T) {
 
 	countFiles := len(GetAllFilesFromPath("test"))
 
