@@ -82,7 +82,9 @@ func ReadFromFilePathsSlice(currentFormat, finalFormat string, filePaths []strin
 }
 func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte) {
 	fileByteChanged := false
-
+	if strings.Contains(filePath, `ConverterCRLF.exe`) {
+		return
+	}
 	switch currentFormat {
 	case CRLF:
 		for i := 0; i < len(b)-1; i++ {
@@ -101,7 +103,20 @@ func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte) {
 		}
 
 	case CR:
-		fmt.Println("bb")
+		for i := 0; i < len(b)-1; i++ {
+			if b[i] == 13 && !(b[i+1] == 10) {
+				fileByteChanged = true
+				if finalFormat == CRLF {
+					b = append(b[:i+1], append([]byte{10}, b[i+1:]...)...)
+				} else {
+					b[i] = 10
+				}
+
+			}
+		}
+		if fileByteChanged {
+			WriteInFile(filePath, b)
+		}
 
 	case LF:
 		fmt.Println("bb")
@@ -113,9 +128,9 @@ func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte) {
 }
 
 func GetAllFilesFromCurrentDir() (allFilesFromCurrentDir []string) {
-	currentPath, err := os.Getwd()
-	CheckErrors("func StartReplaceFormatNEL()", err)
-	//currentPath := `D:\VM\image-docker\ci-testing — копия`
+	//currentPath, err := os.Getwd()
+	//CheckErrors("func StartReplaceFormatNEL()", err)
+	currentPath := `D:\VM\image-docker\ci-testing — копия`
 
 	return GetAllFilesFromPath(currentPath)
 }
