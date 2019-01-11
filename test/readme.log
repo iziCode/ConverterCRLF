@@ -1,0 +1,11 @@
+256
+
+
+128
+I've been trying to learn Go on my own, but I've been stumped on trying read from and write to ordinary files.
+
+I can get as far as inFile, _ := os.Open(INFILE, 0, 0), but actually getting the content of the file doesn't make sense, because the read function takes a []byte as a parameter.
+
+func (file *File) Read(b []byte) (n int, err Error)
+file go
+share
