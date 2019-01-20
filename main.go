@@ -17,12 +17,27 @@ const ALL = "ALL"
 func main() {
 	//TODO: Add filters to files that do not need to be changed
 	//TODO: Add output of all files by formats
+	//TODO: Add console input file paths
 	StartReplaceFormatNEL()
 }
 
 func StartReplaceFormatNEL() {
+
+	currentFormat, finalFormat := ReadInputData()
+	inputDataIsCorrected := CheckInputData(currentFormat, finalFormat)
+
+	if inputDataIsCorrected {
+		filePaths := GetAllFilesFromCurrentDir()
+		ReadFromFilePathsSlice(currentFormat, finalFormat, filePaths)
+
+	} else {
+		StartReplaceFormatNEL()
+	}
+
+}
+
+func ReadInputData() (currentFormat, finalFormat string) {
 	var err error
-	var currentFormat, finalFormat string
 
 	fmt.Println("Введите какой формат файлов (CRLF, CR, LF или ALL) вы хотите преобразовать:")
 	_, err = fmt.Scan(&currentFormat)
@@ -35,20 +50,26 @@ func StartReplaceFormatNEL() {
 	currentFormat = strings.ToUpper(currentFormat)
 	finalFormat = strings.ToUpper(finalFormat)
 
+	return
+}
+
+func CheckInputData(currentFormat, finalFormat string) (inputDataIsCorrected bool) {
 	if currentFormat != CRLF && currentFormat != CR && currentFormat != LF && currentFormat != ALL {
 		fmt.Println("Неправильный входной формат!!! Выберите CRLF, CR, LF или ALL")
-		StartReplaceFormatNEL()
+		inputDataIsCorrected = false
+		return
 	} else if finalFormat != CRLF && finalFormat != CR && finalFormat != LF {
 		fmt.Println("Неправильный выходной формат!!! Выберите CRLF, CR, или LF")
-		StartReplaceFormatNEL()
+		inputDataIsCorrected = false
+		return
 	} else if currentFormat == finalFormat {
 		fmt.Println("Форматы должны отличаться!!!")
-		StartReplaceFormatNEL()
-	} else {
-		filePaths := GetAllFilesFromCurrentDir()
-		ReadFromFilePathsSlice(currentFormat, finalFormat, filePaths)
+		inputDataIsCorrected = false
+		return
 	}
 
+	inputDataIsCorrected = true
+	return
 }
 
 func WriteInFile(filePath string, b []byte) {
