@@ -16,6 +16,7 @@ const ALL = "ALL"
 
 func main() {
 	//TODO: Add filters to files that do not need to be changed
+	//TODO: Add output of all files by formats
 	StartReplaceFormatNEL()
 }
 
