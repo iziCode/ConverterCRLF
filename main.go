@@ -2,22 +2,23 @@ package main
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 )
 
-const CRLF = "CRLF"
-const CR = "CR"
-const LF = "LF"
-const ALL = "ALL"
+const (
+	CRLF = "CRLF"
+	CR   = "CR"
+	LF   = "LF"
+	ALL  = "ALL"
+)
 
 func main() {
 	//TODO: Add filters to files that do not need to be changed
 	//TODO: Add output of all files by formats
-	//TODO: Refactor code for go style guide
 	StartReplaceFormatNEL()
 }
 
@@ -38,6 +39,7 @@ func StartReplaceFormatNEL() {
 
 func ReadInputData() (filePath, currentFormat, finalFormat string) {
 	var err error
+	funcName := "ReadInputData() (filePath, currentFormat, finalFormat string)"
 
 	fmt.Println("Вставьте путь до нужной папки:")
 	_, err = fmt.Scan(&filePath)
@@ -54,10 +56,24 @@ func ReadInputData() (filePath, currentFormat, finalFormat string) {
 	currentFormat = strings.ToUpper(currentFormat)
 	finalFormat = strings.ToUpper(finalFormat)
 
-	return
+	log.WithFields(log.Fields{
+		"filePath":      filePath,
+		"currentFormat": currentFormat,
+		"finalFormat":   finalFormat,
+	}).Info(funcName)
+
+	return filePath, currentFormat, finalFormat
 }
 
 func CheckInputData(filePath, currentFormat, finalFormat string) (inputDataIsCorrected bool) {
+	funcName := "CheckInputData(filePath, currentFormat, finalFormat string) (inputDataIsCorrected bool)"
+
+	log.WithFields(log.Fields{
+		"filePath":      filePath,
+		"currentFormat": currentFormat,
+		"finalFormat":   finalFormat,
+	}).Info(funcName)
+
 	if filePath == "" {
 		fmt.Println("Путь до папки не может быть пустым!!!")
 		return false
@@ -76,113 +92,130 @@ func CheckInputData(filePath, currentFormat, finalFormat string) (inputDataIsCor
 	return true
 }
 
-func WriteInFile(filePath string, b []byte) {
+func WriteInFile(filePath string, dataBytes []byte) {
+	funcName := "WriteInFile(filePath string, dataBytes []byte)"
 
-	err := ioutil.WriteFile(filePath, b, 0644)
-	CheckErrors("func WriteInFile(b []byte)", err)
+	log.WithFields(log.Fields{
+		"filePath":  filePath,
+		"dataBytes": dataBytes,
+	}).Info(funcName)
+
+	err := ioutil.WriteFile(filePath, dataBytes, 0644)
+	CheckErrors(funcName, err)
 }
 
 func ReadFromFilePathsSlice(currentFormat, finalFormat string, filePaths []string) {
+	funcName := "ReadFromFilePathsSlice(currentFormat, finalFormat string, filePaths []string)"
+
 	for _, filePath := range filePaths {
 		file, err := os.Open(filePath)
 		if err != nil {
-			fmt.Println("func ReadFromFilePathsSlice(filePaths []string)", err)
+			fmt.Println(funcName, err)
 			os.Exit(1)
 		}
-		CheckErrors("func ReadFromFilePathsSlice(filePaths []string)", err)
+		CheckErrors(funcName, err)
 
-		data := make([]byte, 100000)
+		dataBytes := make([]byte, 100000)
 
 		for {
-			n, err := file.Read(data)
+			n, err := file.Read(dataBytes)
 
 			if err == io.EOF {
 				break
 			}
-			ChangeFormatNEAL(filePath, currentFormat, finalFormat, data[:n])
+			ChangeFormatNEAL(filePath, currentFormat, finalFormat, dataBytes[:n])
 
 		}
 		err = file.Close()
-		CheckErrors("func ReadFromFilePathsSlice(filePaths []string)", err)
+		CheckErrors(funcName, err)
 	}
 
 }
-func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte) {
+func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, dataBytes []byte) {
 	fileByteChanged := false
+	funcName := "ChangeFormatNEAL(filePath, currentFormat, finalFormat string, dataBytes []byte)"
+
+	log.WithFields(log.Fields{
+		"filePath":      filePath,
+		"currentFormat": currentFormat,
+		"finalFormat":   finalFormat,
+		"dataBytes":     dataBytes,
+	}).Info(funcName)
+
 	if strings.Contains(filePath, `ConverterCRLF.exe`) {
 		return
 	}
 	switch currentFormat {
 	case CRLF:
-		for i := 0; i < len(b)-1; i++ {
-			if b[i] == 13 && b[i+1] == 10 {
+		for i := 0; i < len(dataBytes)-1; i++ {
+			if dataBytes[i] == 13 && dataBytes[i+1] == 10 {
 				fileByteChanged = true
 				if finalFormat == LF {
-					b = append(b[:i], b[i+1:]...)
+					dataBytes = append(dataBytes[:i], dataBytes[i+1:]...)
 					i--
 				} else {
-					b = append(b[:i+1], b[i+2:]...)
+					dataBytes = append(dataBytes[:i+1], dataBytes[i+2:]...)
 				}
 			}
 		}
 		if fileByteChanged {
-			WriteInFile(filePath, b)
+			WriteInFile(filePath, dataBytes)
 		}
 
 	case CR:
-		for i := 0; i < len(b); i++ {
-			if b[i] == 13 && i != len(b)-1 && !(b[i+1] == 10) {
+		for i := 0; i < len(dataBytes); i++ {
+			if dataBytes[i] == 13 && i != len(dataBytes)-1 && !(dataBytes[i+1] == 10) {
 				fileByteChanged = true
 				if finalFormat == CRLF {
-					b = append(b[:i+1], append([]byte{10}, b[i+1:]...)...)
+					dataBytes = append(dataBytes[:i+1], append([]byte{10}, dataBytes[i+1:]...)...)
 				} else {
-					b[i] = 10
+					dataBytes[i] = 10
 				}
-			} else if i == len(b)-1 && b[i] == 13 {
+			} else if i == len(dataBytes)-1 && dataBytes[i] == 13 {
 				fileByteChanged = true
 				if finalFormat == CRLF {
-					b = append(b[:], 10)
+					dataBytes = append(dataBytes[:], 10)
 				} else {
-					b[i] = 10
+					dataBytes[i] = 10
 				}
 
 			}
 		}
 		if fileByteChanged {
-			WriteInFile(filePath, b)
+			WriteInFile(filePath, dataBytes)
 		}
 
 	case LF:
-		for i := 0; i < len(b); i++ {
-			if b[i] == 10 && i > 0 && !(b[i-1] == 13) {
+		for i := 0; i < len(dataBytes); i++ {
+			if dataBytes[i] == 10 && i > 0 && !(dataBytes[i-1] == 13) {
 				fileByteChanged = true
 				if finalFormat == CRLF {
-					b = append(b[:i], append([]byte{13}, b[i:]...)...)
+					dataBytes = append(dataBytes[:i], append([]byte{13}, dataBytes[i:]...)...)
 				} else {
-					b[i] = 13
+					dataBytes[i] = 13
 				}
 			}
 		}
 		if fileByteChanged {
-			WriteInFile(filePath, b)
+			WriteInFile(filePath, dataBytes)
 		}
 
 	case ALL:
 		if finalFormat == CRLF {
-			ChangeFormatNEAL(filePath, CR, CRLF, b)
-			ChangeFormatNEAL(filePath, LF, CRLF, b)
+			ChangeFormatNEAL(filePath, CR, CRLF, dataBytes)
+			ChangeFormatNEAL(filePath, LF, CRLF, dataBytes)
 			fileByteChanged = true
 		} else if finalFormat == CR {
-			ChangeFormatNEAL(filePath, CRLF, CR, b)
-			ChangeFormatNEAL(filePath, LF, CR, b)
+			ChangeFormatNEAL(filePath, CRLF, CR, dataBytes)
+			ChangeFormatNEAL(filePath, LF, CR, dataBytes)
 			fileByteChanged = true
 		} else if finalFormat == LF {
-			ChangeFormatNEAL(filePath, CRLF, LF, b)
-			ChangeFormatNEAL(filePath, CR, LF, b)
+			ChangeFormatNEAL(filePath, CRLF, LF, dataBytes)
+			ChangeFormatNEAL(filePath, CR, LF, dataBytes)
 			fileByteChanged = true
 		}
 		if fileByteChanged {
-			WriteInFile(filePath, b)
+			WriteInFile(filePath, dataBytes)
 		}
 
 	default:
@@ -192,8 +225,10 @@ func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte) {
 }
 
 func GetAllFilesFromPath(filePath string) (allFilesFromPath []string) {
+	funcName := "GetAllFilesFromPath(filePath string) (allFilesFromPath []string)"
+
 	files, err := ioutil.ReadDir(filePath)
-	CheckErrors("func GetAllFiles(filePath string)", err)
+	CheckErrors(funcName, err)
 
 	for _, file := range files {
 		dirOrFilePath := strings.Join([]string{filePath, file.Name()}, "\\")
@@ -203,12 +238,17 @@ func GetAllFilesFromPath(filePath string) (allFilesFromPath []string) {
 			allFilesFromPath = append(allFilesFromPath, dirOrFilePath)
 		}
 	}
-	return
+
+	log.WithFields(log.Fields{
+		"filePath":         filePath,
+		"allFilesFromPath": allFilesFromPath,
+	}).Info(funcName)
+
+	return allFilesFromPath
 }
 
-//Общая проверка всех ошибок
-func CheckErrors(methodName string, err error) {
+func CheckErrors(funcName string, err error) {
 	if err != nil {
-		log.Println(methodName, "get errors:", err)
+		log.Errorf(funcName, "get errors:", err)
 	}
 }
