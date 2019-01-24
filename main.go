@@ -17,17 +17,17 @@ const ALL = "ALL"
 func main() {
 	//TODO: Add filters to files that do not need to be changed
 	//TODO: Add output of all files by formats
-	//TODO: Add console input file paths
+	//TODO: Refactor code for go style guide
 	StartReplaceFormatNEL()
 }
 
 func StartReplaceFormatNEL() {
 
-	currentFormat, finalFormat := ReadInputData()
-	inputDataIsCorrected := CheckInputData(currentFormat, finalFormat)
+	filePath, currentFormat, finalFormat := ReadInputData()
+	inputDataIsCorrected := CheckInputData(filePath, currentFormat, finalFormat)
 
 	if inputDataIsCorrected {
-		filePaths := GetAllFilesFromCurrentDir()
+		filePaths := GetAllFilesFromPath(filePath)
 		ReadFromFilePathsSlice(currentFormat, finalFormat, filePaths)
 
 	} else {
@@ -36,8 +36,12 @@ func StartReplaceFormatNEL() {
 
 }
 
-func ReadInputData() (currentFormat, finalFormat string) {
+func ReadInputData() (filePath, currentFormat, finalFormat string) {
 	var err error
+
+	fmt.Println("Вставьте путь до нужной папки:")
+	_, err = fmt.Scan(&filePath)
+	CheckErrors("func StartReplaceFormatNEL()", err)
 
 	fmt.Println("Введите какой формат файлов (CRLF, CR, LF или ALL) вы хотите преобразовать:")
 	_, err = fmt.Scan(&currentFormat)
@@ -53,23 +57,23 @@ func ReadInputData() (currentFormat, finalFormat string) {
 	return
 }
 
-func CheckInputData(currentFormat, finalFormat string) (inputDataIsCorrected bool) {
+func CheckInputData(filePath, currentFormat, finalFormat string) (inputDataIsCorrected bool) {
+	if filePath == "" {
+		fmt.Println("Путь до папки не может быть пустым!!!")
+		return false
+	}
 	if currentFormat != CRLF && currentFormat != CR && currentFormat != LF && currentFormat != ALL {
 		fmt.Println("Неправильный входной формат!!! Выберите CRLF, CR, LF или ALL")
-		inputDataIsCorrected = false
-		return
+		return false
 	} else if finalFormat != CRLF && finalFormat != CR && finalFormat != LF {
 		fmt.Println("Неправильный выходной формат!!! Выберите CRLF, CR, или LF")
-		inputDataIsCorrected = false
-		return
+		return false
 	} else if currentFormat == finalFormat {
 		fmt.Println("Форматы должны отличаться!!!")
-		inputDataIsCorrected = false
-		return
+		return false
 	}
 
-	inputDataIsCorrected = true
-	return
+	return true
 }
 
 func WriteInFile(filePath string, b []byte) {
@@ -185,13 +189,6 @@ func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, b []byte) {
 		fmt.Println("Введите один из трех форматов CR, LF, CRLF")
 	}
 
-}
-
-func GetAllFilesFromCurrentDir() (allFilesFromCurrentDir []string) {
-	currentPath, err := os.Getwd()
-	CheckErrors("func StartReplaceFormatNEL()", err)
-
-	return GetAllFilesFromPath(currentPath)
 }
 
 func GetAllFilesFromPath(filePath string) (allFilesFromPath []string) {
