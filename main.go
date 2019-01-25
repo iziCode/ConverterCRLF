@@ -3,9 +3,7 @@ package main
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"io"
 	"io/ioutil"
-	"os"
 	"strings"
 )
 
@@ -23,13 +21,19 @@ func main() {
 }
 
 func StartReplaceFormatNEL() {
+	funcName := "StartReplaceFormatNEL()"
 
 	filePath, currentFormat, finalFormat := ReadInputData()
 	inputDataIsCorrected := CheckInputData(filePath, currentFormat, finalFormat)
 
 	if inputDataIsCorrected {
 		filePaths := GetAllFilesFromPath(filePath)
-		ReadFromFilePathsSlice(currentFormat, finalFormat, filePaths)
+
+		for _, filePath := range filePaths {
+			dataBytes, err := ioutil.ReadFile(filePath)
+			CheckErrors(funcName, err)
+			ChangeFormatNEAL(filePath, currentFormat, finalFormat, dataBytes)
+		}
 
 	} else {
 		StartReplaceFormatNEL()
@@ -104,33 +108,6 @@ func WriteInFile(filePath string, dataBytes []byte) {
 	CheckErrors(funcName, err)
 }
 
-func ReadFromFilePathsSlice(currentFormat, finalFormat string, filePaths []string) {
-	funcName := "ReadFromFilePathsSlice(currentFormat, finalFormat string, filePaths []string)"
-
-	for _, filePath := range filePaths {
-		file, err := os.Open(filePath)
-		if err != nil {
-			fmt.Println(funcName, err)
-			os.Exit(1)
-		}
-		CheckErrors(funcName, err)
-
-		dataBytes := make([]byte, 100000)
-
-		for {
-			n, err := file.Read(dataBytes)
-
-			if err == io.EOF {
-				break
-			}
-			ChangeFormatNEAL(filePath, currentFormat, finalFormat, dataBytes[:n])
-
-		}
-		err = file.Close()
-		CheckErrors(funcName, err)
-	}
-
-}
 func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, dataBytes []byte) {
 	fileByteChanged := false
 	funcName := "ChangeFormatNEAL(filePath, currentFormat, finalFormat string, dataBytes []byte)"
