@@ -136,6 +136,7 @@ func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, dataBytes []b
 			}
 		}
 		if fileByteChanged {
+			fmt.Println("Файл:", filePath, "был с форматом:", CRLF)
 			WriteInFile(filePath, dataBytes)
 		}
 
@@ -159,6 +160,7 @@ func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, dataBytes []b
 			}
 		}
 		if fileByteChanged {
+			fmt.Println("Файл:", filePath, "был с форматом:", CR)
 			WriteInFile(filePath, dataBytes)
 		}
 
@@ -174,6 +176,7 @@ func ChangeFormatNEAL(filePath, currentFormat, finalFormat string, dataBytes []b
 			}
 		}
 		if fileByteChanged {
+			fmt.Println("Файл:", filePath, "был с форматом:", LF)
 			WriteInFile(filePath, dataBytes)
 		}
 
