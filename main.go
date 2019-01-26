@@ -15,16 +15,49 @@ const (
 )
 
 func main() {
+	ChooseMethod()
 	//TODO: Add filters to files that do not need to be changed
 	//TODO: Add output of all files by formats
-	StartReplaceFormatNEL()
+
+}
+
+func ChooseMethod() {
+	var err error
+	funcName := "ChooseMethod()"
+	var ChosenMethod string
+
+	fmt.Println(`Для отображение всех файлов и их форматов напишите "1"`)
+	fmt.Println(`Для преобразования файлов в нужный формат напишите "2":`)
+	_, err = fmt.Scan(&ChosenMethod)
+	CheckErrors(funcName, err)
+	CheckChooseMethod(ChosenMethod)
+
+	switch ChosenMethod {
+	case "1":
+		ShowAllFilesAndFormats()
+	case "2":
+		StartReplaceFormatNEL()
+
+	}
+
+}
+
+func CheckChooseMethod(ChosenMethod string) {
+	if ChosenMethod != "1" && ChosenMethod != "2" {
+		fmt.Println(`Неверная команда!`)
+		ChooseMethod()
+	}
+}
+
+func ShowAllFilesAndFormats() {
+
 }
 
 func StartReplaceFormatNEL() {
 	funcName := "StartReplaceFormatNEL()"
 
-	filePath, currentFormat, finalFormat := ReadInputData()
-	inputDataIsCorrected := CheckInputData(filePath, currentFormat, finalFormat)
+	filePath, currentFormat, finalFormat := ReadStartReplaceFormatNEL()
+	inputDataIsCorrected := CheckStartReplaceFormatNEL(filePath, currentFormat, finalFormat)
 
 	if inputDataIsCorrected {
 		filePaths := GetAllFilesFromPath(filePath)
@@ -41,21 +74,21 @@ func StartReplaceFormatNEL() {
 
 }
 
-func ReadInputData() (filePath, currentFormat, finalFormat string) {
+func ReadStartReplaceFormatNEL() (filePath, currentFormat, finalFormat string) {
 	var err error
 	funcName := "ReadInputData() (filePath, currentFormat, finalFormat string)"
 
 	fmt.Println("Вставьте путь до нужной папки:")
 	_, err = fmt.Scan(&filePath)
-	CheckErrors("func StartReplaceFormatNEL()", err)
+	CheckErrors(funcName, err)
 
 	fmt.Println("Введите какой формат файлов (CRLF, CR, LF или ALL) вы хотите преобразовать:")
 	_, err = fmt.Scan(&currentFormat)
-	CheckErrors("func StartReplaceFormatNEL()", err)
+	CheckErrors(funcName, err)
 
 	fmt.Println("Введите какой формат файлов вы хотите получить на выходе CRLF, CR, или LF:")
 	_, err = fmt.Scan(&finalFormat)
-	CheckErrors("func StartReplaceFormatNEL()", err)
+	CheckErrors(funcName, err)
 
 	currentFormat = strings.ToUpper(currentFormat)
 	finalFormat = strings.ToUpper(finalFormat)
@@ -69,8 +102,8 @@ func ReadInputData() (filePath, currentFormat, finalFormat string) {
 	return filePath, currentFormat, finalFormat
 }
 
-func CheckInputData(filePath, currentFormat, finalFormat string) (inputDataIsCorrected bool) {
-	funcName := "CheckInputData(filePath, currentFormat, finalFormat string) (inputDataIsCorrected bool)"
+func CheckStartReplaceFormatNEL(filePath, currentFormat, finalFormat string) (inputDataIsCorrected bool) {
+	funcName := "CheckStartReplaceFormatNEL(filePath, currentFormat, finalFormat string) (inputDataIsCorrected bool)"
 
 	log.WithFields(log.Fields{
 		"filePath":      filePath,
