@@ -14,7 +14,7 @@ func ShowAllFilesAndFormats() {
 
 	allFilesAndFormats := getFileFormatNEL(allFilesPaths)
 
-	fmt.Println(allFilesAndFormats)
+	PrintAllFilesAndFormats(allFilesAndFormats)
 }
 
 func ReadShowAllFilesAndFormats() (filePath string) {
@@ -32,9 +32,15 @@ func ReadShowAllFilesAndFormats() (filePath string) {
 	return filePath
 }
 
-func getFileFormatNEL(allFilesPaths []string) (allFilesAndFormats map[string]string) {
+func getFileFormatNEL(allFilesPaths []string) (allFilesAndFormats []map[string]string) {
+	mapCRLF := make(map[string]string)
+	mapCR := make(map[string]string)
+	mapLF := make(map[string]string)
+	allFilesAndFormats = append(allFilesAndFormats, mapCRLF)
+	allFilesAndFormats = append(allFilesAndFormats, mapCR)
+	allFilesAndFormats = append(allFilesAndFormats, mapLF)
+
 	funcName := "getFileFormatNEL(allFilesPaths []string) (allFilesAndFormats map[string]string)"
-	allFilesAndFormats = make(map[string]string)
 	for _, filePath := range allFilesPaths {
 		dataBytes, err := ioutil.ReadFile(filePath)
 		CheckErrors(funcName, err)
@@ -42,17 +48,26 @@ func getFileFormatNEL(allFilesPaths []string) (allFilesAndFormats map[string]str
 		for i := 0; i < len(dataBytes); i++ {
 
 			if dataBytes[i] == 13 && i+1 < len(dataBytes) && dataBytes[i+1] == 10 {
-				allFilesAndFormats[filePath] = CRLF
+				allFilesAndFormats[0][filePath] = CRLF
 				break
 			} else if dataBytes[i] == 13 {
-				allFilesAndFormats[filePath] = CR
+				allFilesAndFormats[1][filePath] = CR
 				break
 			} else if dataBytes[i] == 10 {
-				allFilesAndFormats[filePath] = LF
+				allFilesAndFormats[2][filePath] = LF
 				break
 			}
 		}
 
 	}
 	return allFilesAndFormats
+}
+
+func PrintAllFilesAndFormats(allFilesAndFormats []map[string]string) {
+
+	for _, fileFormatMap := range allFilesAndFormats {
+		for file, format := range fileFormatMap {
+			fmt.Println("Формат:", format, "Файл:", file)
+		}
+	}
 }

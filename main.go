@@ -13,8 +13,7 @@ const (
 )
 
 func main() {
-	ShowAllFilesAndFormats()
-	return
+
 	ChooseMethod()
 	//TODO: Add filters to files that do not need to be changed
 	//TODO: Add output of all files by formats
